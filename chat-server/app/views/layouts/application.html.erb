@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>ChatServer</title>
+  <%= stylesheet_link_tag "https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" %>
+  <%= csrf_meta_tags %>
+
+  <%= yield :header %>
+</head>
+<body>
+	<% if session[:user_id] %>
+	<div class="main-header">
+		<nav class="navbar navbar-default navbar-fixed-top">
+		  <div class="container">
+		    <ul class="nav navbar-nav">
+		        <li class="active"><a href="/home">Home <span class="sr-only">(current)</span></a></li>
+		        <li><a href="/chat">Chat</a></li>
+		        <li><a href="/logout">Logout</a></li>
+		      </ul>
+		  </div>
+		</nav>
+	</div>
+	<% end %>
+
+<%= yield :content %>
+
+  <%= javascript_include_tag 'https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js' %>
+</body>
+</html>
