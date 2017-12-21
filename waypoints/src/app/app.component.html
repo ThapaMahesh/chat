@@ -1,90 +1,95 @@
-<h1>Angular Google Maps (AGM) Demo</h1>
-<p><a href="https://angular-maps.com/" target="_blank">Official Website</a></p>
+<div class="container">
+  <h1>Angular Google Maps (AGM) Demo</h1>
+  <p><a href="https://angular-maps.com/" target="_blank">Official Website</a></p>
 
-<agm-map 
-  [latitude]="lat"
-  [longitude]="lng"
-  [zoom]="zoom"
-  [disableDefaultUI]="false"
-  [zoomControl]="false"
-  (mapClick)="mapClicked($event)">
+  <agm-map 
+    [latitude]="lat"
+    [longitude]="lng"
+    [zoom]="zoom"
+    [disableDefaultUI]="false"
+    [zoomControl]="false"
+    (mapClick)="mapClicked($event)">
 
-  <agm-marker 
-      *ngFor="let m of markers; let i = index"
-      (markerClick)="clickedMarker(m.label, i)"
-      [latitude]="m.lat"
-      [longitude]="m.lng"
+    <agm-marker 
+        *ngFor="let m of markers; let i = index"
+        (markerClick)="clickedMarker(m.label, i)"
+        [latitude]="m.lat"
+        [longitude]="m.lng"
+        
+        [markerDraggable]="m.draggable"
+        (dragEnd)="markerDragEnd(i, $event)">
+
+        
+      <agm-info-window>
+        <strong>Marker {{ i+1 }}</strong>
+      </agm-info-window>
       
-      [markerDraggable]="m.draggable"
-      (dragEnd)="markerDragEnd(i, $event)">
+    </agm-marker>
 
-      
-    <agm-info-window>
-      <strong>Marker {{ i+1 }}</strong>
-    </agm-info-window>
-    
-  </agm-marker>
+    <agm-direction *ngIf="dir" [origin]="dir.org" [destination]="dir.dest"></agm-direction>
+  </agm-map>
 
-  <agm-direction *ngIf="dir" [origin]="dir.org" [destination]="dir.dest"></agm-direction>
-</agm-map>
+  <button class="btn btn-primary" (click)="saveWay()">Save Waypoint</button>
 
-<div class="row">
-<div class="col-md-6" *ngIf="waypoints.length">
-  <table class="table">
-    <thead>
-      <tr>
-        <th scope="col">#</th>
-        <th scope="col">Lat</th>
-        <th scope="col">Lnt</th>
-        <th scope="col">Action</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr *ngFor="let w of waypoints; let j = index">
-        <th scope="row">
-          <input type="checkbox" (change)="addPoints($event, j)" name="forTour{{j}}">
-        </th>
-        <td>{{ w.lat }}</td>
-        <td>{{ w.lng }}</td>
-        <td><a href=""><i class="glyphicon glyphicon-cancle"></i></a></td>
-      </tr>
-    </tbody>
-  </table>
+  <div class="row">
+  <div class="col-md-6" *ngIf="waypoints.length">
+    <table class="table">
+      <thead>
+        <tr>
+          <th scope="col">#</th>
+          <th scope="col">Lat</th>
+          <th scope="col">Lnt</th>
+          <th scope="col">Action</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let w of waypoints; let j = index">
+          <th scope="row">
+            <input type="checkbox" (change)="addPoints($event, j)" name="forTour{{j}}">
+          </th>
+          <td>{{ w.lat }}</td>
+          <td>{{ w.lng }}</td>
+          <td><a (click)="removeWaypoint(j)"><i class="glyphicon glyphicon-remove"></i></a></td>
+        </tr>
+      </tbody>
+    </table>
 
-  <button (click)="saveTour()">Add Selected to Tour</button>
+    <button class="btn btn-primary" (click)="saveTour()">Add Selected to Tour</button>
+  </div>
+  </div>
+
+  <div class="row">
+  <div class="col-md-6" *ngIf="tours.length">
+    <table class="table">
+      <thead>
+        <tr>
+          <th scope="col">#</th>
+          <th scope="col">Origin</th>
+          <th scope="col">Destination</th>
+          <th scope="col">Waypoints</th>
+          <th scope="col">Action</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let t of tours; let k = index">
+          <th scope="row">
+            {{ k+1 }}
+          </th>
+          <td>{{ t.start.lat }}, {{ t.start.lng }}</td>
+          <td>{{ t.destination.lat }}, {{ t.destination.lng }}</td>
+          <td>
+            <p *ngFor="let eachT of t.waypoints; let l=index; let first=first; let last= last;">
+              <span>{{ eachT.lat }}, {{ eachT.lng }}</span>
+              <span><a (click)="removeTourWaypoints(k, l)"><i class="glyphicon glyphicon-remove"></i></a></span>
+            </p>
+          </td>
+          <td><a (click)="removeTour(k)"><i class="glyphicon glyphicon-remove"></i></a></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+  </div>
+
+  <button class="btn btn-primary" (click)="dispatchWaypoint()">Dispatch Waypoint</button>
+  <button class="btn btn-primary" (click)="dispatchTour()">Dispatch Tour</button>
 </div>
-</div>
-
-<div class="row">
-<div class="col-md-6" *ngIf="tours.length">
-  <table class="table">
-    <thead>
-      <tr>
-        <th scope="col">#</th>
-        <th scope="col">Origin</th>
-        <th scope="col">Destination</th>
-        <th scope="col">Waypoints</th>
-        <th scope="col">Action</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr *ngFor="let t of tours; let k = index">
-        <th scope="row">
-          {{ k+1 }}
-        </th>
-        <td>{{ t[0].lat }}, {{ t[0].lng }}</td>
-        <td>{{ t[(tours.length-1)].lat }}, {{ t[(tours.length-1)].lng }}</td>
-        <td>
-          <p *ngFor="let eachT of t; let l=index; let first=first; let last= last;">
-            <span *ngIf="!first && !last">{{ eachT.lat }}, {{ eachT.lng }}</span>
-          </p>
-        </td>
-        <td><a href=""><i class="glyphicon glyphicon-cancle"></i></a></td>
-      </tr>
-    </tbody>
-  </table>
-
-  <button (click)="saveTour()">Add Selected to Tour</button>
-</div>
-</div>
-<button (click)="saveWay()">Save Waypoint</button>

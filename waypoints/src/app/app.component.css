@@ -1,5 +1,6 @@
 agm-map {
-  height: 300px;
+	width: 100%;
+  	height: 600px;
 }
 
 /*:host, google-map {display:block; width: inherit; height: inherit}*/
