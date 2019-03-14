@@ -4,6 +4,6 @@ Chat is a Ruby based web project developed as a learning project. The applicatio
 It does not implement socket yet.
 
 
-# Another Project
+# Waypoints
 
 Another project is angular based project to find waypoints with Google map API
